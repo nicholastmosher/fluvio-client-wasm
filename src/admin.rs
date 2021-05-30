@@ -64,6 +64,7 @@ impl FluvioAdmin {
         })
     }
 
+    #[wasm_bindgen(js_name = watchTopics)]
     pub fn watch_topics(&mut self) -> AsyncTopicStream {
         use tokio_stream::StreamExt;
         let stream = self.inner.borrow_mut().watch_topics().map(|it| {

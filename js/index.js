@@ -22,7 +22,7 @@ import("../pkg").then(async fluvioWasm => {
   }
 
   /*
-  const producer = await fluvio_2.topicProducer("foobar");
+  const producer = await fluvio.topicProducer("foobar");
   await producer.send("", `count`);
 
   const consumer = await fluvio.partitionConsumer("foobar", 0);

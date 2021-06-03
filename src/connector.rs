@@ -7,14 +7,11 @@ use std::io::Error as IoError;
 #[derive(Clone)]
 pub struct FluvioWebsocketConnector {
     base_addr: String,
-    token: String
+    token: String,
 }
 impl FluvioWebsocketConnector {
     pub fn new(base_addr: String, token: String) -> Self {
-        Self {
-            base_addr,
-            token,
-        }
+        Self { base_addr, token }
     }
 }
 #[async_trait(?Send)]
@@ -30,7 +27,8 @@ impl TcpDomainConnector for FluvioWebsocketConnector {
             format!("{}{}", self.base_addr, "9003")
         } else {
             addr.to_string()
-        }.to_string();
+        }
+        .to_string();
         log::debug!("Connecting to {:?}", addr);
 
         let (mut _ws, wsstream) = WsMeta::connect(addr.clone(), Some(vec![self.token.as_str()]))

@@ -1,19 +1,19 @@
 use std::cell::RefCell;
-use std::rc::Rc;
 use std::pin::Pin;
+use std::rc::Rc;
 
-use tokio_stream::Stream;
-use js_sys::Array;
-use js_sys::Promise;
-use wasm_bindgen::prelude::*;
-use wasm_bindgen_futures::future_to_promise;
-use fluvio::FluvioAdmin as NativeFluvioAdmin;
-use fluvio::metadata::partition::PartitionSpec;
-use fluvio::metadata::topic::TopicSpec;
-use fluvio::metadata::objects::Metadata;
-use fluvio::metadata::store::MetadataStoreObject;
 use crate::topic::TopicMetadata;
 use crate::FluvioError;
+use fluvio::metadata::objects::Metadata;
+use fluvio::metadata::partition::PartitionSpec;
+use fluvio::metadata::store::MetadataStoreObject;
+use fluvio::metadata::topic::TopicSpec;
+use fluvio::FluvioAdmin as NativeFluvioAdmin;
+use js_sys::Array;
+use js_sys::Promise;
+use tokio_stream::Stream;
+use wasm_bindgen::prelude::*;
+use wasm_bindgen_futures::future_to_promise;
 
 #[wasm_bindgen]
 pub struct FluvioAdmin {
@@ -66,11 +66,13 @@ impl FluvioAdmin {
         use tokio_stream::StreamExt;
         let stream = self.inner.borrow_mut().watch_topics().map(|it| {
             let (add, del) = it.parts();
-            let convert = |meta: MetadataStoreObject<_, _>| TopicMetadata::from(Metadata {
-                name: meta.key,
-                spec: meta.spec,
-                status: meta.status,
-            });
+            let convert = |meta: MetadataStoreObject<_, _>| {
+                TopicMetadata::from(Metadata {
+                    name: meta.key,
+                    spec: meta.spec,
+                    status: meta.status,
+                })
+            };
             let added: Vec<_> = add.into_iter().map(convert).collect();
             let deleted: Vec<_> = del.into_iter().map(convert).collect();
             (added, deleted)
@@ -109,18 +111,18 @@ macro_rules! impl_stream {
 
                 let rc = self.inner.clone();
                 future_to_promise(async move {
-                    rc.borrow_mut().next().await
-                        .ok_or_else(|| FluvioError::from(format!("{} watch stream closed", stringify!($spec))).into())
-                        .map(|(added, deleted)| {
-                            JsValue::from($update {
-                                added,
-                                deleted,
-                            })
+                    rc.borrow_mut()
+                        .next()
+                        .await
+                        .ok_or_else(|| {
+                            FluvioError::from(format!("{} watch stream closed", stringify!($spec)))
+                                .into()
                         })
+                        .map(|(added, deleted)| JsValue::from($update { added, deleted }))
                 })
             }
         }
-    }
+    };
 }
 
 impl_stream!(AsyncTopicStream, TopicWatchUpdates, TopicMetadata);

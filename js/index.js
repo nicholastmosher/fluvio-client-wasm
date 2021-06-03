@@ -7,8 +7,8 @@ import("../pkg").then(async fluvioWasm => {
   console.log("Got a connection to fluvio!");
   const topic = "foobar";
 
-  const consumer = await fluvio.partition_consumer(topic, 0);
-  let stream = await consumer.stream(Offset.from_end(10))
+  const consumer = await fluvio.partitionConsumer(topic, 0);
+  let stream = await consumer.stream(Offset.fromEnd(10))
   console.log(`Got a stream to for topic ${topic}`);
 
   let count = 0;
@@ -22,15 +22,15 @@ import("../pkg").then(async fluvioWasm => {
   }
 
   /*
-  const producer = await fluvio_2.topic_producer("foobar");
+  const producer = await fluvio_2.topicProducer("foobar");
   await producer.send("", `count`);
 
-  const consumer = await fluvio.partition_consumer("foobar", 0);
-  let stream = await consumer.stream(Offset.from_end(10))
+  const consumer = await fluvio.partitionConsumer("foobar", 0);
+  let stream = await consumer.stream(Offset.fromEnd(10))
 
   let count = 0;
   let before = new Date();
-  while (count < 1000) {
+  while (count < 10) {
 
     await producer.send("", `count-${count}`);
     let next = await stream.next();
